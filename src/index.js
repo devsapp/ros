@@ -30,11 +30,12 @@ class MyComponent extends Component {
     }
 
     async deploy(inputs) {
-
-        console.log(`Deploying ${CONFIGS.compFullname}`)
-
+        const apts = {
+              boolean: ['help', 'assumeYes'],
+              alias: { help: 'h', assumeYes: 'y' },
+            };
         const comParse = commandParse({ args: inputs.args }, apts);
-        if (comParse.data?.help) {
+        if (comParse.data && comParse.data.help) {
           help([{header: 'Description',
                  content: `Usage: s ${inputs.Project.ProjectName} deploy [command]`}]);
           return;
@@ -153,7 +154,12 @@ class MyComponent extends Component {
 
     async remove(inputs) {
 
-        if (comParse.data?.help) {
+        const apts = {
+              boolean: ['help', 'assumeYes'],
+              alias: { help: 'h', assumeYes: 'y' },
+            };
+        const comParse = commandParse({ args: inputs.args }, apts);
+        if (comParse.data && comParse.data.help) {
           help([{header: 'Description',
                  content: `Usage: s ${inputs.Project.ProjectName} remove [command]`}]);
           return;
