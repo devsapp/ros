@@ -4,7 +4,7 @@ const {
   getCredential,
   help,
   commandParse,
-  loadComponent,
+  load,
     reportComponent
 } = require('@serverless-devs/core')
 const Core = require('@alicloud/pop-core');
@@ -40,6 +40,9 @@ class MyComponent extends Component {
                  content: `Usage: s ${inputs.Project.ProjectName} deploy [command]`}]);
           return;
         }
+
+        const todb = await load('devsapp/2db')
+        await todb.addHistory(inputs)
 
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
@@ -148,7 +151,16 @@ class MyComponent extends Component {
 
         this.state = result
         await this.save()
-
+        inputs.props = {
+            report_content: {
+                ros: [
+                    {
+                        stack: result.StackId
+                    }
+                ]
+            }
+        }
+        await todb.addSource(inputs)
         return result
     }
 
@@ -164,6 +176,9 @@ class MyComponent extends Component {
                  content: `Usage: s ${inputs.Project.ProjectName} remove [command]`}]);
           return;
         }
+
+        const todb = await load('devsapp/2db')
+        await todb.addHistory(inputs)
 
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
@@ -212,6 +227,13 @@ class MyComponent extends Component {
 
         this.state = {}
         await this.save()
+
+        inputs.props = {
+            report_content: {
+                ros: []
+            }
+        }
+        await todb.addSource(inputs)
 
         return {}
     }
