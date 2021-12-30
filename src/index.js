@@ -1,12 +1,10 @@
 const {
-  HLogger,
-  ILogger,
-  getCredential,
-  help,
-  commandParse,
-  load,
+    getCredential,
+    help,
+    commandParse,
     reportComponent
 } = require('@serverless-devs/core')
+
 const Core = require('@alicloud/pop-core');
 const fs = require('fs');
 const {Component, Log} = require('@serverless-devs/s-core');
@@ -30,37 +28,83 @@ class MyComponent extends Component {
     }
 
     async deploy(inputs) {
-        const apts = {
-              boolean: ['help', 'assumeYes'],
-              alias: { help: 'h', assumeYes: 'y' },
-            };
-        const comParse = commandParse({ args: inputs.args }, apts);
-        if (comParse.data && comParse.data.help) {
-          help([{header: 'Description',
-                 content: `Usage: s ${inputs.Project.ProjectName} deploy [command]`}]);
-          return;
-        }
 
-        const todb = await load('devsapp/2db')
-        await todb.addHistory(inputs)
+        const apts = {
+            boolean: ['help', 'assumeYes'],
+            alias: {help: 'h', assumeYes: 'y'},
+        };
+        const comParse = commandParse({args: inputs.args}, apts);
+        if (comParse.data && comParse.data.help) {
+            help([{
+                header: 'Deploy',
+                content: `Deploy local resources online `
+            }, {
+                header: 'Usage',
+                content: `$ s ${inputs.Project.ProjectName} deploy <options>`
+            }, {
+                header: 'Options',
+                optionList: [
+                  {
+                      name: 'name',
+                      description: '[Optional] Stack Name',
+                      defaultOption: false,
+                      type: Boolean,
+                    }
+                ],
+            },{
+              header: 'Global Options',
+              optionList: [
+                {
+                  name: 'debug',
+                  description: '[Optional] Output debug informations  ',
+                  type: String,
+                },
+                {
+                  name: 'help',
+                  description: '[Optional] Help for command',
+                  alias: 'h',
+                  type: Boolean,
+                },
+                {
+                  name: 'template',
+                  description: '[Optional] Specify the template file',
+                  alias: 't',
+                  type: String,
+                },
+                {
+                  name: 'access',
+                  description: '[Optional] Specify key alias',
+                  alias: 'a',
+                  type: String,
+                },
+              ],
+            },{
+            header: 'Examples with Yaml',
+            content: [
+              '$ s deploy',
+              '$ s deploy --name demo',
+            ],
+          },]);
+            return;
+        }
 
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
 
         reportComponent("ros", {
-          "commands": 'deploy',
-          "uid": credential.AccountID,
+            "commands": 'deploy',
+            "uid": credential.AccountID,
         });
-
 
         const client = await this.getClient(credential)
 
         await this.init()
 
-        const stackName = inputs.props.name
+        const inputName =  comParse.data ? comParse.data.name : undefined
+        const stackName =  inputName || inputs.props.name
         const region = inputs.props.region || "cn-hangzhou"
 
-        const template = inputs.props.template || "./ros.json"
+        const template = inputs.props.template || "./template.json"
         const policyObj = inputs.props.policy || {}
 
         if (this.state && this.state.RegionId) {
@@ -160,39 +204,84 @@ class MyComponent extends Component {
                 ]
             }
         }
-        await todb.addSource(inputs)
         return result
     }
 
     async remove(inputs) {
 
         const apts = {
-              boolean: ['help', 'assumeYes'],
-              alias: { help: 'h', assumeYes: 'y' },
-            };
-        const comParse = commandParse({ args: inputs.args }, apts);
+            boolean: ['help', 'assumeYes'],
+            alias: {help: 'h', assumeYes: 'y'},
+        };
+        const comParse = commandParse({args: inputs.args}, apts);
         if (comParse.data && comParse.data.help) {
-          help([{header: 'Description',
-                 content: `Usage: s ${inputs.Project.ProjectName} remove [command]`}]);
-          return;
+            help([{
+                header: 'Remove',
+                content: `Remove online resources `
+            }, {
+                header: 'Usage',
+                content: `$ s ${inputs.Project.ProjectName} deploy <options>`
+            }, {
+                header: 'Options',
+                optionList: [
+                  {
+                      name: 'name',
+                      description: '[Optional] Stack Name',
+                      defaultOption: false,
+                      type: Boolean,
+                    }
+                ],
+            },{
+              header: 'Global Options',
+              optionList: [
+                {
+                  name: 'debug',
+                  description: '[Optional] Output debug informations  ',
+                  type: String,
+                },
+                {
+                  name: 'help',
+                  description: '[Optional] Help for command',
+                  alias: 'h',
+                  type: Boolean,
+                },
+                {
+                  name: 'template',
+                  description: '[Optional] Specify the template file',
+                  alias: 't',
+                  type: String,
+                },
+                {
+                  name: 'access',
+                  description: '[Optional] Specify key alias',
+                  alias: 'a',
+                  type: String,
+                },
+              ],
+            },{
+            header: 'Examples with Yaml',
+            content: [
+              '$ s remove',
+              '$ s remove --name demo',
+            ],
+          },]);
+            return;
         }
-
-        const todb = await load('devsapp/2db')
-        await todb.addHistory(inputs)
 
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
 
         reportComponent("ros", {
-          "commands": 'remove',
-          "uid": credential.AccountID,
+            "commands": 'remove',
+            "uid": credential.AccountID,
         });
 
-        const client = await this.getClient(inputs.Credentials)
+        const client = await this.getClient(credential)
 
         await this.init()
 
-        const stackName = inputs.props.name
+        const inputName =  comParse.data ? comParse.data.name : undefined
+        const stackName =  inputName || inputs.props.name
         const region = inputs.props.region || "cn-hangzhou"
 
         log.log("Start remove ... ")
@@ -233,7 +322,6 @@ class MyComponent extends Component {
                 ros: []
             }
         }
-        await todb.addSource(inputs)
 
         return {}
     }
