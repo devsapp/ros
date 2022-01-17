@@ -175,8 +175,6 @@ class MyComponent extends Component {
             "StackName": stackName
         }
 
-        console.log(requestBody)
-
         if (response.Stacks.length == 0) {
             // 创建逻辑
             log.log("Create stack ... ")
