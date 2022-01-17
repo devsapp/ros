@@ -156,7 +156,7 @@ class MyComponent extends Component {
             "TemplateBody": templateBody
         }
 
-        let indexTemp = 0
+        let indexTemp = 1
         for(const key in Parameters){
             requestBody[`Parameters.${indexTemp}.ParameterKey`] = key
             requestBody[`Parameters.${indexTemp}.ParameterValue`] = Parameters[key]
@@ -174,6 +174,8 @@ class MyComponent extends Component {
             "RegionId": region,
             "StackName": stackName
         }
+
+        console.log(requestBody)
 
         if (response.Stacks.length == 0) {
             // 创建逻辑

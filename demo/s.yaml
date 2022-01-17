@@ -4,8 +4,11 @@ access: default  #  秘钥别名
 
 services:
   ros-test: #  服务名称
-    component:  devsapp/ros
+    component:  /Users/jiangyu/Desktop/ros/src
     props:
       region: cn-hangzhou
       name: test
       template: ./template.json
+      parameters:
+        VpcName: myvpcddd
+        Description: testddddddddddddd
