@@ -25,6 +25,9 @@ services:
       region: cn-hangzhou
       name: test
       template: ./template.json
+      parameters:
+        test: 1
+        demo: 2
 ```
 
 2. 创建一个符合ROS规范的json文件`template.json`
@@ -71,6 +74,7 @@ services:
 | name | True | String | Stack 名字 |
 | template | True | String | Template 本地路径，默认是`template.json` |
 | policy | False | Struct | Policy 配置 |
+| parameters | False | Struct | 模板中已定义的参数的名称和取值 |
 
 #### Policy
 | 参数名 |  必填  |  类型  |  参数描述  |

@@ -106,6 +106,8 @@ class MyComponent extends Component {
 
         const template = inputs.props.template || "./template.json"
         const policyObj = inputs.props.policy || {}
+        const Parameters = inputs.props.parameters || {}
+
 
         if (this.state && this.state.RegionId) {
             if (region != this.state.RegionId || stackName != this.state.StackName) {
@@ -114,7 +116,7 @@ class MyComponent extends Component {
                 await new Promise((resolve, reject) => {
                     client.request('DeleteStack', {
                         "RegionId": region,
-                        "StackId": this.state.StackId
+                        "StackId": this.state.StackId,
                     }, defaultOpt).then((result) => {
                         resolve(result);
                     }, (ex) => {
@@ -153,6 +155,14 @@ class MyComponent extends Component {
             "RegionId": region,
             "TemplateBody": templateBody
         }
+
+        let indexTemp = 0
+        for(const key in Parameters){
+            requestBody[`Parameters.${indexTemp}.ParameterKey`] = key
+            requestBody[`Parameters.${indexTemp}.ParameterValue`] = Parameters[key]
+            indexTemp = indexTemp + 1
+        }
+
         if (StackPolicyBody) {
             requestBody.StackPolicyBody = StackPolicyBody
         }
