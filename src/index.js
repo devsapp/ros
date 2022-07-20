@@ -109,23 +109,24 @@ class MyComponent extends Component {
         const Parameters = inputs.props.parameters || {}
 
 
-        if (this.state && this.state.RegionId) {
-            if (region != this.state.RegionId || stackName != this.state.StackName) {
-                // remove
-                log.warn(`Delete stack ${this.state.StackName} - ${this.state.StackId}`)
-                await new Promise((resolve, reject) => {
-                    client.request('DeleteStack', {
-                        "RegionId": region,
-                        "StackId": this.state.StackId,
-                    }, defaultOpt).then((result) => {
-                        resolve(result);
-                    }, (ex) => {
-                        reject(ex)
-                    })
-                })
-                log.warn(`Deleted stack ${this.state.StackName} - ${this.state.StackId}`)
-            }
-        }
+        // 国内做这种操作很危险，先干掉
+        // if (this.state && this.state.RegionId) {
+        //     if (region != this.state.RegionId || stackName != this.state.StackName) {
+        //         // remove
+        //         log.warn(`Delete stack ${this.state.StackName} - ${this.state.StackId}`)
+        //         await new Promise((resolve, reject) => {
+        //             client.request('DeleteStack', {
+        //                 "RegionId": region,
+        //                 "StackId": this.state.StackId,
+        //             }, defaultOpt).then((result) => {
+        //                 resolve(result);
+        //             }, (ex) => {
+        //                 reject(ex)
+        //             })
+        //         })
+        //         log.warn(`Deleted stack ${this.state.StackName} - ${this.state.StackId}`)
+        //     }
+        // }
 
         log.log("Start deploy ... ")
         log.log("Check stack ... ")
@@ -141,7 +142,6 @@ class MyComponent extends Component {
         })
 
         log.log("Get template body ... ")
-        const templateBody = fs.readFileSync(template, 'utf-8');
 
         let StackPolicyURL
         let StackPolicyBody
@@ -153,8 +153,16 @@ class MyComponent extends Component {
         }
         const requestBody = {
             "RegionId": region,
-            "TemplateBody": templateBody
         }
+        const tempLowerCase = template.toLowerCase()
+        if(tempLowerCase.startsWith("https://") || tempLowerCase.startsWith("http://") || tempLowerCase.startsWith("oss://")){
+            requestBody["TemplateURL"] = template
+        }else{
+            const templateBody = fs.readFileSync(template, 'utf-8');
+            requestBody["TemplateBody"] = templateBody
+        }
+
+
 
         let indexTemp = 1
         for(const key in Parameters){
