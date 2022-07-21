@@ -25,9 +25,9 @@ class MyComponent extends Component {
             endpoint: 'https://ros.aliyuncs.com',
             apiVersion: '2019-09-10',
             // 设置链接超时时间
-            connectTimeout: 10000,
+            connectTimeout: 60000,
             // 设置读取超时时间
-            readTimeout: 10000,
+            readTimeout: 60000,
         })
     }
 
