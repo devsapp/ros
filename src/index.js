@@ -23,7 +23,11 @@ class MyComponent extends Component {
             accessKeyId: credentials.AccessKeyID,
             accessKeySecret: credentials.AccessKeySecret,
             endpoint: 'https://ros.aliyuncs.com',
-            apiVersion: '2019-09-10'
+            apiVersion: '2019-09-10',
+            // 设置链接超时时间
+            connectTimeout: 10000,
+            // 设置读取超时时间
+            readTimeout: 10000,
         })
     }
 
@@ -44,47 +48,47 @@ class MyComponent extends Component {
             }, {
                 header: 'Options',
                 optionList: [
-                  {
-                      name: 'name',
-                      description: '[Optional] Stack Name',
-                      defaultOption: false,
-                      type: Boolean,
+                    {
+                        name: 'name',
+                        description: '[Optional] Stack Name',
+                        defaultOption: false,
+                        type: Boolean,
                     }
                 ],
-            },{
-              header: 'Global Options',
-              optionList: [
-                {
-                  name: 'debug',
-                  description: '[Optional] Output debug informations  ',
-                  type: String,
-                },
-                {
-                  name: 'help',
-                  description: '[Optional] Help for command',
-                  alias: 'h',
-                  type: Boolean,
-                },
-                {
-                  name: 'template',
-                  description: '[Optional] Specify the template file',
-                  alias: 't',
-                  type: String,
-                },
-                {
-                  name: 'access',
-                  description: '[Optional] Specify key alias',
-                  alias: 'a',
-                  type: String,
-                },
-              ],
-            },{
-            header: 'Examples with Yaml',
-            content: [
-              '$ s deploy',
-              '$ s deploy --name demo',
-            ],
-          },]);
+            }, {
+                header: 'Global Options',
+                optionList: [
+                    {
+                        name: 'debug',
+                        description: '[Optional] Output debug informations  ',
+                        type: String,
+                    },
+                    {
+                        name: 'help',
+                        description: '[Optional] Help for command',
+                        alias: 'h',
+                        type: Boolean,
+                    },
+                    {
+                        name: 'template',
+                        description: '[Optional] Specify the template file',
+                        alias: 't',
+                        type: String,
+                    },
+                    {
+                        name: 'access',
+                        description: '[Optional] Specify key alias',
+                        alias: 'a',
+                        type: String,
+                    },
+                ],
+            }, {
+                header: 'Examples with Yaml',
+                content: [
+                    '$ s deploy',
+                    '$ s deploy --name demo',
+                ],
+            },]);
             return;
         }
 
@@ -100,8 +104,8 @@ class MyComponent extends Component {
 
         await this.init()
 
-        const inputName =  comParse.data ? comParse.data.name : undefined
-        const stackName =  inputName || inputs.props.name
+        const inputName = comParse.data ? comParse.data.name : undefined
+        const stackName = inputName || inputs.props.name
         const region = inputs.props.region || "cn-hangzhou"
 
         const template = inputs.props.template || "./template.json"
@@ -155,17 +159,16 @@ class MyComponent extends Component {
             "RegionId": region,
         }
         const tempLowerCase = template.toLowerCase()
-        if(tempLowerCase.startsWith("https://") || tempLowerCase.startsWith("http://") || tempLowerCase.startsWith("oss://")){
+        if (tempLowerCase.startsWith("https://") || tempLowerCase.startsWith("http://") || tempLowerCase.startsWith("oss://")) {
             requestBody["TemplateURL"] = template
-        }else{
+        } else {
             const templateBody = fs.readFileSync(template, 'utf-8');
             requestBody["TemplateBody"] = templateBody
         }
 
 
-
         let indexTemp = 1
-        for(const key in Parameters){
+        for (const key in Parameters) {
             requestBody[`Parameters.${indexTemp}.ParameterKey`] = key
             requestBody[`Parameters.${indexTemp}.ParameterValue`] = Parameters[key]
             indexTemp = indexTemp + 1
@@ -242,47 +245,47 @@ class MyComponent extends Component {
             }, {
                 header: 'Options',
                 optionList: [
-                  {
-                      name: 'name',
-                      description: '[Optional] Stack Name',
-                      defaultOption: false,
-                      type: Boolean,
+                    {
+                        name: 'name',
+                        description: '[Optional] Stack Name',
+                        defaultOption: false,
+                        type: Boolean,
                     }
                 ],
-            },{
-              header: 'Global Options',
-              optionList: [
-                {
-                  name: 'debug',
-                  description: '[Optional] Output debug informations  ',
-                  type: String,
-                },
-                {
-                  name: 'help',
-                  description: '[Optional] Help for command',
-                  alias: 'h',
-                  type: Boolean,
-                },
-                {
-                  name: 'template',
-                  description: '[Optional] Specify the template file',
-                  alias: 't',
-                  type: String,
-                },
-                {
-                  name: 'access',
-                  description: '[Optional] Specify key alias',
-                  alias: 'a',
-                  type: String,
-                },
-              ],
-            },{
-            header: 'Examples with Yaml',
-            content: [
-              '$ s remove',
-              '$ s remove --name demo',
-            ],
-          },]);
+            }, {
+                header: 'Global Options',
+                optionList: [
+                    {
+                        name: 'debug',
+                        description: '[Optional] Output debug informations  ',
+                        type: String,
+                    },
+                    {
+                        name: 'help',
+                        description: '[Optional] Help for command',
+                        alias: 'h',
+                        type: Boolean,
+                    },
+                    {
+                        name: 'template',
+                        description: '[Optional] Specify the template file',
+                        alias: 't',
+                        type: String,
+                    },
+                    {
+                        name: 'access',
+                        description: '[Optional] Specify key alias',
+                        alias: 'a',
+                        type: String,
+                    },
+                ],
+            }, {
+                header: 'Examples with Yaml',
+                content: [
+                    '$ s remove',
+                    '$ s remove --name demo',
+                ],
+            },]);
             return;
         }
 
@@ -298,8 +301,8 @@ class MyComponent extends Component {
 
         await this.init()
 
-        const inputName =  comParse.data ? comParse.data.name : undefined
-        const stackName =  inputName || inputs.props.name
+        const inputName = comParse.data ? comParse.data.name : undefined
+        const stackName = inputName || inputs.props.name
         const region = inputs.props.region || "cn-hangzhou"
 
         log.log("Start remove ... ")
