@@ -24,10 +24,14 @@ class MyComponent extends Component {
             accessKeySecret: credentials.AccessKeySecret,
             endpoint: 'https://ros.aliyuncs.com',
             apiVersion: '2019-09-10',
-            // 设置链接超时时间
-            connectTimeout: 60000,
-            // 设置读取超时时间
-            readTimeout: 60000,
+            opts: {
+                // // 连接超时时间
+                // connectTimeout: 3000,
+                // // 获取数据超时时间
+                // readTimeout: 3000,
+                // 同时配置 connectTimeout 和 readTimeout
+                timeout: 60000
+            }
         })
     }
 
