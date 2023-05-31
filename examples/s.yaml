@@ -1,0 +1,17 @@
+edition: 1.0.0          #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
+name: rosApp            #  项目名称
+access: xiliu          #  秘钥别名
+
+services:
+  ros-test: #  服务名称
+    component:   ${path(../)} 
+    props:
+      region: cn-beijing
+      name: test-ros-123456
+      endpoint: ros.aliyuncs.com  # 海外是 ros-intl.aliyuncs.com， 默认是国内
+      template: ./ros_template.yaml
+      parameters:
+        BucketName: test-bucket-123456
+        InstanceName: test-inst-123456
+        RoleName: test-role-123456
+        PolicyName: test-policy-123456

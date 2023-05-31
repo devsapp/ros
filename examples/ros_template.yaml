@@ -1,0 +1,109 @@
+ROSTemplateFormatVersion: '2015-09-01'
+Parameters:
+  BucketName:
+    Type: String
+    Description: bucket name.
+  InstanceName:
+    Type: String
+    Description: bucket name.
+  RoleName:
+    Type: String
+    Description: role name.
+  PolicyName:
+    Type: String
+    Description: role name.
+Resources:
+  Bucket-Test:
+    Type: 'ALIYUN::OSS::Bucket'
+    Properties:
+      AccessControl: private
+      BucketName: 
+        Ref: BucketName
+  Table-Test:
+    Type: 'ALIYUN::OTS::Table'
+    Properties:
+      TableName: app
+      InstanceName:
+        'Fn::GetAtt':
+          - Instance-Test
+          - InstanceName
+      PrimaryKey:
+        - Type: STRING
+          Name: id
+  Role-Test:
+    Type: 'ALIYUN::RAM::Role'
+    Properties:
+      MaxSessionDuration: 21600
+      RoleName: 
+        Ref: RoleName
+      Description: role for fc test  2
+      Policies:
+        - PolicyName: 
+            Ref: PolicyName
+          PolicyDocument:
+            Version: '1'
+            Statement:
+              - Action:
+                  - 'ots:*'
+                Resource:
+                  - 'Fn::Join':
+                      - '/'
+                      - - 'acs:ots:*:*:instance'
+                        - 'Fn::GetAtt':
+                            - Instance-Test
+                            - InstanceName
+                  - 'Fn::Join':
+                      - '/'
+                      - - 'acs:ots:*:*:instance'
+                        - 'Fn::GetAtt':
+                            - Instance-Test
+                            - InstanceName
+                        - 'table'
+                        - 'Fn::GetAtt':
+                            - Table-Test
+                            - TableName
+                Effect: Allow
+          Description: test policy
+      AssumeRolePolicyDocument:
+        Version: '1'
+        Statement:
+          - Action: 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service:
+                - fc.aliyuncs.com
+    DependsOn:
+      - Instance-Test
+  AttachPolicyToRole-Test:
+    Type: 'ALIYUN::RAM::AttachPolicyToRole'
+    Properties:
+      PolicyName: AliyunFCDefaultRolePolicy
+      PolicyType: System
+      RoleName:
+        Ref: RoleName
+    DependsOn:
+      - Role-Test
+  Instance-Test:
+    Type: 'ALIYUN::OTS::Instance'
+    Properties:
+      Network: NORMAL
+      InstanceName:
+        Ref: InstanceName
+      ClusterType: SSD
+      Description: test ots instance
+Outputs:
+  InstanceName:
+    Value:
+      'Fn::GetAtt':
+        - Instance-Test
+        - InstanceName
+  RoleArn:
+    Value:
+      'Fn::GetAtt':
+        - Role-Test
+        - Arn
+  TableName:
+    Value:
+      'Fn::GetAtt':
+        - Table-Test
+        - TableName
