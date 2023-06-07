@@ -63,7 +63,7 @@ export class Ros {
       if (totalCount == 0) {
         return this._stackId;
       } else {
-        let stacks = resp.body?.stack;
+        let stacks = resp.body?.stacks;
         this._stackId = stacks[0].stackId as string;
         return this._stackId;
       }
@@ -176,7 +176,7 @@ export class Ros {
 
   }
 
-  protected async createStack() {
+  protected async createStack(): Promise<string> {
     let parameters: $ROS20190910.CreateStackRequestParameters[] = [];
     for (const key in this.getParameters()) {
       // logger.debug(`parameters ==>  ${key}: ${this.getParameters()[key]}`);
@@ -197,6 +197,7 @@ export class Ros {
       logger.debug(`createStack ===> ${JSON.stringify(resp.body)}`);
       const stackId = resp.body.stackId as string;
       this.waitStackChangeFinished(`stack ${this.getStackName()} create finished! stackId=${stackId}`, stackId);
+      return stackId;
     } catch (error) {
       logger.error(error.message);
       throw error;
@@ -240,12 +241,12 @@ export class Ros {
     }
   }
 
-  public async deploy() {
+  public async deploy(): Promise<Object> {
     let stackId = await this.getStackId();
     if (stackId == "") {
       // create
       logger.info(`create stack stackName=${this.getStackName()}...`);
-      await this.createStack();
+      stackId = await this.createStack();
     } else {
       // udpate
       logger.info(`update stack ${stackId} precheck ...`);
@@ -253,6 +254,18 @@ export class Ros {
       logger.info(`update stack ${stackId} ...`);
       await this.updateStack(stackId, false);
     }
+
+    const ret = await this.getStack(stackId);
+    if (ret == null) {
+      throw new Error("get stack outputs fail");
+    }
+    const outputs = ret.body.outputs;
+    logger.debug(`outputs ===> ${outputs} `);
+    let exportOutputs = {};
+    for (const o of outputs) {
+      exportOutputs[o.OutputKey] = o.OutputValue;
+    }
+    return exportOutputs;
   }
 
   public async remove() {

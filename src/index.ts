@@ -7,11 +7,10 @@ export default class ComponentRos {
    * @param inputs
    * @returns
    */
-  public async deploy(inputs: InputProps) {
+  public async deploy(inputs: InputProps): Promise<Object> {
     logger.debug(`deploy ==> input: ${JSON.stringify(inputs.props)}`);
     const rosObj = new Ros(inputs);
-    rosObj.deploy();
-    return {};
+    return rosObj.deploy();
   }
 
   public async remove(inputs: InputProps) {
