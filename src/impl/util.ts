@@ -26,7 +26,7 @@ export async function retry<T>(fn: RetryFunction<T>, maxRetries: number, interva
 }
 
 export function readFileAsString(filename: string): string {
-  const data = fs.readFileSync(filename);
+  const data = fs.readFileSync(filename, 'utf-8');
   return data.toString();
 }
 

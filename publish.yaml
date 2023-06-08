@@ -3,15 +3,15 @@ Type: Component
 Name: ros
 Provider:
   - 阿里云 # 取值内容参考：www.devsapp.cn/provider_list.html
-Version: 0.0.1
+Version: dev
 Description: 通过阿里云 ROS 部署阿里云资源
 HomePage: https://github.com/devsapp/ros
-Tags: 
+Tags:
   - ROS
   - IAC
 Category: 基础云服务 # 取值内容参考：www.devsapp.cn/category_list.html
 Service: # 使用的服务
-  资源编排:  # 取值内容参考：www.devsapp.cn/service_list.html
+  资源编排: # 取值内容参考：www.devsapp.cn/service_list.html
     Authorities: #权限描述
       - 资源编排全部权限 # 所需要的权限
 Commands: # 指令，格式为指令：指令描述，例如：
@@ -48,7 +48,7 @@ Properties:
     type: string
     required: true
     description: Stack Name
-  
+
   parameters:
     type: object
     required: false
@@ -56,13 +56,24 @@ Properties:
 
   template:
     type: object
-    required: false
+    required: true
     description: ros template 语法， yaml 格式,  和 templateUri 参数必须2选1
 
-  templateUri:
-    type: string
+  policy:
+    type: object
     required: false
-    default: ./template.json
-    description: ros template 模版文件, json 和 yaml 格式都支持
-
-  
+    description: Policy 配置
+    properties:
+      body:
+        type: string
+        required: false
+        examples:
+          [
+            '{"Statement":[{"Action":"Update:*","Resource":"*","Effect":"Allow","Principal":"*"}]}',
+          ]
+        description: 包含资源栈策略主体的结构，长度为1~16,384个字节。
+      url:
+        type: string
+        required: false
+        examples: ["oss://ros-stack-policy/demo"]
+        description: 包含资源栈策略的文件的位置。 URL必须指向位于Web服务器（HTTP或HTTPS）或阿里云OSS存储桶（例如：oss://ros/stack-policy/demo、oss://ros/stack-policy/demo?RegionId=cn-hangzhou）中的策略，策略文件最大长度为16,384个字节。 如未指定OSS地域，默认与接口参数RegionId相同。

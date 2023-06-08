@@ -1,4 +1,4 @@
-ROSTemplateFormatVersion: '2015-09-01'
+ROSTemplateFormatVersion: "2015-09-01"
 Parameters:
   BucketName:
     Type: String
@@ -14,60 +14,60 @@ Parameters:
     Description: role name.
 Resources:
   Bucket-Test:
-    Type: 'ALIYUN::OSS::Bucket'
+    Type: "ALIYUN::OSS::Bucket"
     Properties:
       AccessControl: private
-      BucketName: 
+      BucketName:
         Ref: BucketName
   Table-Test:
-    Type: 'ALIYUN::OTS::Table'
+    Type: "ALIYUN::OTS::Table"
     Properties:
       TableName: app
       InstanceName:
-        'Fn::GetAtt':
+        "Fn::GetAtt":
           - Instance-Test
           - InstanceName
       PrimaryKey:
         - Type: STRING
           Name: id
   Role-Test:
-    Type: 'ALIYUN::RAM::Role'
+    Type: "ALIYUN::RAM::Role"
     Properties:
       MaxSessionDuration: 21600
-      RoleName: 
+      RoleName:
         Ref: RoleName
       Description: role for fc test  2
       Policies:
-        - PolicyName: 
+        - PolicyName:
             Ref: PolicyName
           PolicyDocument:
-            Version: '1'
+            Version: "1"
             Statement:
               - Action:
-                  - 'ots:*'
+                  - "ots:*"
                 Resource:
-                  - 'Fn::Join':
-                      - '/'
-                      - - 'acs:ots:*:*:instance'
-                        - 'Fn::GetAtt':
+                  - "Fn::Join":
+                      - "/"
+                      - - "acs:ots:*:*:instance"
+                        - "Fn::GetAtt":
                             - Instance-Test
                             - InstanceName
-                  - 'Fn::Join':
-                      - '/'
-                      - - 'acs:ots:*:*:instance'
-                        - 'Fn::GetAtt':
+                  - "Fn::Join":
+                      - "/"
+                      - - "acs:ots:*:*:instance"
+                        - "Fn::GetAtt":
                             - Instance-Test
                             - InstanceName
-                        - 'table'
-                        - 'Fn::GetAtt':
+                        - "table"
+                        - "Fn::GetAtt":
                             - Table-Test
                             - TableName
                 Effect: Allow
           Description: test policy
       AssumeRolePolicyDocument:
-        Version: '1'
+        Version: "1"
         Statement:
-          - Action: 'sts:AssumeRole'
+          - Action: "sts:AssumeRole"
             Effect: Allow
             Principal:
               Service:
@@ -75,7 +75,7 @@ Resources:
     DependsOn:
       - Instance-Test
   AttachPolicyToRole-Test:
-    Type: 'ALIYUN::RAM::AttachPolicyToRole'
+    Type: "ALIYUN::RAM::AttachPolicyToRole"
     Properties:
       PolicyName: AliyunFCDefaultRolePolicy
       PolicyType: System
@@ -84,7 +84,7 @@ Resources:
     DependsOn:
       - Role-Test
   Instance-Test:
-    Type: 'ALIYUN::OTS::Instance'
+    Type: "ALIYUN::OTS::Instance"
     Properties:
       Network: NORMAL
       InstanceName:
@@ -92,18 +92,23 @@ Resources:
       ClusterType: SSD
       Description: test ots instance
 Outputs:
+  BucketName:
+    Value:
+      "Fn::GetAtt":
+        - Bucket-Test
+        - Name
   InstanceName:
     Value:
-      'Fn::GetAtt':
+      "Fn::GetAtt":
         - Instance-Test
         - InstanceName
   RoleArn:
     Value:
-      'Fn::GetAtt':
+      "Fn::GetAtt":
         - Role-Test
         - Arn
   TableName:
     Value:
-      'Fn::GetAtt':
+      "Fn::GetAtt":
         - Table-Test
         - TableName
