@@ -79,7 +79,7 @@ export class Ros {
   }
 
   protected getTemplate(): string {
-    return this.getProps().template as string;
+    return _.trim(this.getProps().template as string);
   }
 
   protected getRosClient(endpoint?: string): ROS20190910 {
