@@ -304,9 +304,11 @@ export class Ros {
     }
     const outputs = ret.body.outputs;
     logger.debug(`outputs ===> ${outputs} `);
-    let exportOutputs = {};
-    for (const o of outputs) {
-      exportOutputs[o.OutputKey] = o.OutputValue;
+    let exportOutputs = { "stackId": stackId };
+    if (!_.isEmpty(outputs)) {
+      for (const o of outputs) {
+        exportOutputs[o.OutputKey] = o.OutputValue;
+      }
     }
     return exportOutputs;
   }
