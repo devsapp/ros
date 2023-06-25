@@ -79,7 +79,17 @@ export class Ros {
   }
 
   protected getTemplate(): string {
-    return _.trim(this.getProps().template as string);
+    const template = this.getProps().template;
+    if (typeof template === "object") {
+      return JSON.stringify(template);
+    } else { //string
+      const tempLowerCase = template.toLowerCase()
+      if (tempLowerCase.startsWith("https://") || tempLowerCase.startsWith("http://") || tempLowerCase.startsWith("oss://")) {
+        return _.trim(template as string);
+      } else {
+        return readFileAsString(_.trim(template as string));
+      }
+    }
   }
 
   protected getRosClient(endpoint?: string): ROS20190910 {
@@ -195,11 +205,11 @@ export class Ros {
       regionId: this.getRegion(),
       parameters: parameters,
     });
-    const tempLowerCase = this.getTemplate().toLowerCase()
+    const tempLowerCase = this.getTemplate().toLowerCase();
     if (tempLowerCase.startsWith("https://") || tempLowerCase.startsWith("http://") || tempLowerCase.startsWith("oss://")) {
-      createStackRequest.templateURL = this.getTemplate()
+      createStackRequest.templateURL = this.getTemplate();
     } else {
-      createStackRequest.templateBody = readFileAsString(this.getTemplate());
+      createStackRequest.templateBody = this.getTemplate();
     }
     const policyObj = this.getStackPolicy();
     if (_.has(policyObj, "body")) {
@@ -238,11 +248,11 @@ export class Ros {
       parameters: parameters,
       dryRun: dryRun || false,
     });
-    const tempLowerCase = this.getTemplate().toLowerCase()
+    const tempLowerCase = this.getTemplate().toLowerCase();
     if (tempLowerCase.startsWith("https://") || tempLowerCase.startsWith("http://") || tempLowerCase.startsWith("oss://")) {
-      updateStackRequest.templateURL = this.getTemplate()
+      updateStackRequest.templateURL = this.getTemplate();
     } else {
-      updateStackRequest.templateBody = readFileAsString(this.getTemplate());
+      updateStackRequest.templateBody = this.getTemplate();
     }
     const policyObj = this.getStackPolicy();
     if (_.has(policyObj, "body")) {

@@ -2,16 +2,16 @@ ROSTemplateFormatVersion: "2015-09-01"
 Parameters:
   BucketName:
     Type: String
-    Description: bucket name.
+    Description: oss bucket name.
   InstanceName:
     Type: String
-    Description: bucket name.
+    Description: ots instance name.
   RoleName:
     Type: String
     Description: role name.
   PolicyName:
     Type: String
-    Description: role name.
+    Description: policy name.
 Resources:
   Bucket-Test:
     Type: "ALIYUN::OSS::Bucket"

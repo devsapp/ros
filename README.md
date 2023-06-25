@@ -68,13 +68,13 @@ services:
 
 ### 参数详情
 
-| 参数名     | 必填  | 类型   | 参数描述                                                                                      |
-| ---------- | ----- | ------ | --------------------------------------------------------------------------------------------- |
-| region     | True  | Enum   | 地域                                                                                          |
-| name       | True  | String | Stack 名字                                                                                    |
-| template   | True  | String | Template 本地路径或线上地址，例如 http/https 协议的地址，或 oss 地址等，默认是`template.json` |
-| policy     | False | Struct | Policy 配置                                                                                   |
-| parameters | False | Struct | 模板中已定义的参数的名称和取值                                                                |
+| 参数名     | 必填  | 类型   | 参数描述                                                                                                             |
+| ---------- | ----- | ------ | -------------------------------------------------------------------------------------------------------------------- |
+| region     | True  | Enum   | 地域                                                                                                                 |
+| name       | True  | String | Stack 名字                                                                                                           |
+| template   | True  | String | Template 本地路径、线上地址或者原始的 Ros template，例如 http/https 协议的地址，或 oss 地址等，默认是`template.json` |
+| policy     | False | Struct | Policy 配置                                                                                                          |
+| parameters | False | Struct | 模板中已定义的参数的名称和取值                                                                                       |
 
 #### Policy
 
