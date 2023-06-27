@@ -3,7 +3,13 @@ import * as fs from 'fs';
 
 type RetryFunction<T> = (...args: any[]) => Promise<T>;
 
-export async function retry<T>(fn: RetryFunction<T>, maxRetries: number, interval: number, shouldStop: (ret: T) => boolean, ...args: any[]): Promise<T> {
+export async function retry<T>(
+  fn: RetryFunction<T>,
+  maxRetries: number,
+  interval: number,
+  shouldStop: (ret: T) => boolean,
+  ...args: any[]
+): Promise<T> {
   let retries = 0;
 
   while (true) {
@@ -13,14 +19,14 @@ export async function retry<T>(fn: RetryFunction<T>, maxRetries: number, interva
         return result;
       }
       logger.info(`Retrying in ${interval} ms...`);
-      await new Promise(resolve => setTimeout(resolve, interval));
+      await new Promise((resolve) => setTimeout(resolve, interval));
     } catch (err) {
       logger.error(err.message);
       if (++retries > maxRetries) {
         throw new Error(`Failed after ${retries} retries: ${err.message}`);
       }
       logger.info(`Retrying in ${interval} ms...`);
-      await new Promise(resolve => setTimeout(resolve, interval));
+      await new Promise((resolve) => setTimeout(resolve, interval));
     }
   }
 }
@@ -29,7 +35,6 @@ export function readFileAsString(filename: string): string {
   const data = fs.readFileSync(filename, 'utf-8');
   return data.toString();
 }
-
 
 export function utcTimeStamp2LocalStr(timeStamp: number): string {
   let localTimeStamp = timeStamp - new Date().getTimezoneOffset() * 60 * 1000;
