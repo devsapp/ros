@@ -17,7 +17,7 @@ export class Ros {
   constructor(props: InputProps) {
     this.inputProps = props;
     this.rosClient = null;
-    this._stackId = "";
+    this._stackId = '';
     this._startTimeStamp = new Date().getTime() + new Date().getTimezoneOffset() * 60 * 1000;
     this._eventSet = new Set<string>();
   }
@@ -35,7 +35,7 @@ export class Ros {
   }
 
   protected getRosEndpoint(): string {
-    return this.getProps().endpoint || "ros.aliyuncs.com";
+    return this.getProps().endpoint || 'ros.aliyuncs.com';
   }
 
   protected getParameters(): object {
@@ -51,7 +51,7 @@ export class Ros {
   }
 
   protected async getStackId(): Promise<string> {
-    if (this._stackId != "") {
+    if (this._stackId != '') {
       return this._stackId;
     }
     let listStacksRequest = new $ROS20190910.ListStacksRequest({
@@ -80,11 +80,11 @@ export class Ros {
 
   protected getTemplate(): string {
     const template = this.getProps().template;
-    if (typeof template === "object") {
+    if (typeof template === 'object') {
       return JSON.stringify(template);
     } else { //string
       const tempLowerCase = template.toLowerCase()
-      if (tempLowerCase.startsWith("https://") || tempLowerCase.startsWith("http://") || tempLowerCase.startsWith("oss://")) {
+      if (tempLowerCase.startsWith('https://') || tempLowerCase.startsWith('http://') || tempLowerCase.startsWith('oss://')) {
         return _.trim(template as string);
       } else {
         return readFileAsString(_.trim(template as string));
@@ -179,8 +179,12 @@ export class Ros {
       const ret = await this.getStack(sId);
       if (ret != null) {
         const status = ret.body.status as string;
-        if (!(status.endsWith("_IN_PROGRESS"))) {
-          logger.info(endMessage);
+        if (!(status.endsWith('_IN_PROGRESS'))) {
+          const completeStatus = ['CREATE_COMPLETE', 'UPDATE_COMPLETE', 'IMPORT_CREATE_COMPLETE', 'IMPORT_UPDATE_COMPLETE', 'CHECK_COMPLETE'];
+          logger.info(`${endMessage}; status=${status}`);
+          if (!(completeStatus.includes(status))) {
+            throw new Error(`fail to create/update complete, status=${status}`);
+          }
           break;
         }
       }
@@ -206,18 +210,18 @@ export class Ros {
       parameters: parameters,
     });
     const tempLowerCase = this.getTemplate().toLowerCase();
-    if (tempLowerCase.startsWith("https://") || tempLowerCase.startsWith("http://") || tempLowerCase.startsWith("oss://")) {
+    if (tempLowerCase.startsWith('https://') || tempLowerCase.startsWith('http://') || tempLowerCase.startsWith('oss://')) {
       createStackRequest.templateURL = this.getTemplate();
     } else {
       createStackRequest.templateBody = this.getTemplate();
     }
     const policyObj = this.getStackPolicy();
-    if (_.has(policyObj, "body")) {
-      createStackRequest.stackPolicyBody = _.get(policyObj, "body") as string;
+    if (_.has(policyObj, 'body')) {
+      createStackRequest.stackPolicyBody = _.get(policyObj, 'body') as string;
     }
-    if (_.has(policyObj, "url")) {
+    if (_.has(policyObj, 'url')) {
       if (!createStackRequest.stackPolicyBody) {
-        createStackRequest.stackPolicyURL = _.get(policyObj, "url") as string;
+        createStackRequest.stackPolicyURL = _.get(policyObj, 'url') as string;
       }
     }
     let runtime = new $Util.RuntimeOptions({});
@@ -249,18 +253,18 @@ export class Ros {
       dryRun: dryRun || false,
     });
     const tempLowerCase = this.getTemplate().toLowerCase();
-    if (tempLowerCase.startsWith("https://") || tempLowerCase.startsWith("http://") || tempLowerCase.startsWith("oss://")) {
+    if (tempLowerCase.startsWith('https://') || tempLowerCase.startsWith('http://') || tempLowerCase.startsWith('oss://')) {
       updateStackRequest.templateURL = this.getTemplate();
     } else {
       updateStackRequest.templateBody = this.getTemplate();
     }
     const policyObj = this.getStackPolicy();
-    if (_.has(policyObj, "body")) {
-      updateStackRequest.stackPolicyBody = _.get(policyObj, "body") as string;
+    if (_.has(policyObj, 'body')) {
+      updateStackRequest.stackPolicyBody = _.get(policyObj, 'body') as string;
     }
-    if (_.has(policyObj, "url")) {
+    if (_.has(policyObj, 'url')) {
       if (!updateStackRequest.stackPolicyBody) {
-        updateStackRequest.stackPolicyURL = _.get(policyObj, "url") as string;
+        updateStackRequest.stackPolicyURL = _.get(policyObj, 'url') as string;
       }
     }
     let runtime = new $Util.RuntimeOptions({});
@@ -271,12 +275,12 @@ export class Ros {
         await this.waitStackChangeFinished(`stack ${this.getStackName()} update finished! stackId = ${stackId} `, stackId);
       }
     } catch (error) {
-      if (error.message.includes("NotSupported: code: 400, Update the completely same stack")) {
-        logger.info("Update the completely same stack is not supported");
+      if (error.message.includes('NotSupported: code: 400, Update the completely same stack')) {
+        logger.info('Update the completely same stack is not supported');
         return;
       }
-      if (error.message.includes("ActionInProgress: code: 409")) {
-        logger.info("Update Stack Action is already in progress, please wait for a moment ...");
+      if (error.message.includes('ActionInProgress: code: 409')) {
+        logger.info('Update Stack Action is already in progress, please wait for a moment ...');
         return;
       }
       logger.error(error.message);
@@ -286,7 +290,7 @@ export class Ros {
 
   public async deploy(): Promise<object> {
     let stackId = await this.getStackId();
-    if (stackId == "") {
+    if (stackId == '') {
       // create
       logger.info(`create stack stackName = ${this.getStackName()}...`);
       stackId = await this.createStack();
@@ -300,11 +304,11 @@ export class Ros {
 
     const ret = await this.getStack(stackId);
     if (ret == null) {
-      throw new Error("get stack outputs fail");
+      throw new Error('get stack outputs fail');
     }
     const outputs = ret.body.outputs;
     logger.debug(`outputs ===> ${outputs} `);
-    let exportOutputs = { "stackId": stackId };
+    let exportOutputs = { 'stackId': stackId };
     if (!_.isEmpty(outputs)) {
       for (const o of outputs) {
         exportOutputs[o.OutputKey] = o.OutputValue;
@@ -315,7 +319,7 @@ export class Ros {
 
   public async remove() {
     const stackId = await this.getStackId();
-    if (stackId === "") {
+    if (stackId === '') {
       logger.info(`stack is not exist, id = ${stackId}, name = ${this.getStackName()} `);
       return;
     }
@@ -330,7 +334,7 @@ export class Ros {
       logger.info(`delete Stack ${stackId} takes a long time, please be patient and wait...`);
       while (true) {
         const ret = await this.getStack(stackId) as $ROS20190910.GetStackResponse;
-        if (ret.statusCode === 404 || ret.body.status === "DELETE_COMPLETE") { // StackNotFound
+        if (ret.statusCode === 404 || ret.body.status === 'DELETE_COMPLETE') { // StackNotFound
           logger.info(`stack delete finished!`);
           break;
         }
@@ -341,8 +345,8 @@ export class Ros {
       }
     } catch (error) {
       logger.error(error.message);
-      if (error.message.includes("ActionInProgress: code: 409")) {
-        logger.info("Delete Stack Action is already in progress, please wait for a moment ...");
+      if (error.message.includes('ActionInProgress: code: 409')) {
+        logger.info('Delete Stack Action is already in progress, please wait for a moment ...');
         return;
       }
       throw error;
