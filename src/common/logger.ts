@@ -1,5 +1,15 @@
-import { Logger } from '@serverless-devs/core';
+export default class GLogger {
+  private static instance: any;
+  private constructor() {}
 
-const logger = new Logger('ROS');
+  static getLogger(): any {
+    if (!GLogger.instance) {
+      throw new Error('instance must be init before call getLogger');
+    }
+    return GLogger.instance;
+  }
 
-export default logger;
+  static setLogger(logger: any) {
+    GLogger.instance = logger;
+  }
+}

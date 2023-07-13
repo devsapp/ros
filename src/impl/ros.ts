@@ -1,19 +1,18 @@
-import { InputProps, ICredentials } from './interface';
+import { IInputs } from '@serverless-devs/component-interface';
 import ROS20190910, * as $ROS20190910 from '@alicloud/ros20190910';
 import * as $OpenApi from '@alicloud/openapi-client';
-import logger from '../common/logger';
 import { readFileAsString, utcTimeStr2LocalStr } from './util';
 import * as $Util from '@alicloud/tea-util';
-import { lodash as _ } from '@serverless-devs/core';
-
+import * as _ from 'lodash';
+import GLogger from '../common/logger';
 export class Ros {
-  inputProps: InputProps;
+  input: IInputs;
   rosClient: ROS20190910 | null;
   private _stackId: string;
   _startTimeStamp: number;
   _eventSet: Set<string>;
-  constructor(props: InputProps) {
-    this.inputProps = props;
+  constructor(input: IInputs) {
+    this.input = input;
     this.rosClient = null;
     this._stackId = '';
     this._startTimeStamp = new Date().getTime() + new Date().getTimezoneOffset() * 60 * 1000;
@@ -21,15 +20,15 @@ export class Ros {
   }
 
   protected getProps(): any {
-    return this.inputProps.props;
+    return this.input.props;
   }
 
   protected getRegion(): string {
     return this.getProps().region;
   }
 
-  protected getCredentials(): ICredentials {
-    return this.inputProps.credentials;
+  protected getCredentials(): Promise<any> {
+    return this.input.getCredential();
   }
 
   protected getRosEndpoint(): string {
@@ -49,6 +48,7 @@ export class Ros {
   }
 
   protected async getStackId(): Promise<string> {
+    const logger = GLogger.getLogger();
     if (this._stackId != '') {
       return this._stackId;
     }
@@ -58,7 +58,8 @@ export class Ros {
     });
     let runtime = new $Util.RuntimeOptions({});
     try {
-      let resp = await this.getRosClient().listStacksWithOptions(listStacksRequest, runtime);
+      const client = await this.getRosClient();
+      let resp = await client.listStacksWithOptions(listStacksRequest, runtime);
       logger.debug(`listStacks ==> ${JSON.stringify(resp.body)} `);
       const totalCount = resp.body.totalCount as number;
       if (totalCount == 0) {
@@ -93,14 +94,16 @@ export class Ros {
     }
   }
 
-  protected getRosClient(endpoint?: string): ROS20190910 {
+  protected async getRosClient(endpoint?: string): Promise<ROS20190910> {
     if (this.rosClient !== null) {
       return this.rosClient;
     }
+    const credential = await this.getCredentials();
+    GLogger.getLogger().debug(`getCredentials ==> ${JSON.stringify(credential)}`);
     let config = new $OpenApi.Config({
-      accessKeyId: this.getCredentials().AccessKeyID,
-      accessKeySecret: this.getCredentials().AccessKeySecret,
-      securityToken: this.getCredentials().SecurityToken,
+      accessKeyId: credential.AccessKeyID,
+      accessKeySecret: credential.AccessKeySecret,
+      securityToken: credential.SecurityToken,
     });
     config.endpoint = endpoint || this.getRosEndpoint();
     this.rosClient = new ROS20190910(config);
@@ -108,6 +111,7 @@ export class Ros {
   }
 
   protected async listStackEvents(): Promise<$ROS20190910.ListStackEventsResponseBody> {
+    const logger = GLogger.getLogger();
     const stackId = await this.getStackId();
     let listStackEventsRequest = new $ROS20190910.ListStackEventsRequest({
       stackId: stackId,
@@ -117,10 +121,8 @@ export class Ros {
     });
     let runtime = new $Util.RuntimeOptions({});
     try {
-      let resp = await this.getRosClient().listStackEventsWithOptions(
-        listStackEventsRequest,
-        runtime,
-      );
+      const client = await this.getRosClient();
+      let resp = await client.listStackEventsWithOptions(listStackEventsRequest, runtime);
       logger.debug(`listStackEvents ===> ${JSON.stringify(resp.body)}`);
       return resp.body;
     } catch (error) {
@@ -148,12 +150,13 @@ export class Ros {
     region?: string,
     client?: ROS20190910,
   ): Promise<$ROS20190910.GetStackResponse | null> {
+    const logger = GLogger.getLogger();
     let getStackRequest = new $ROS20190910.GetStackRequest({
       stackId: stackId,
       regionId: region || this.getRegion(),
     });
     let runtime = new $Util.RuntimeOptions({});
-    let clt = client || this.getRosClient();
+    let clt = client || (await this.getRosClient());
     try {
       let resp = await clt.getStackWithOptions(getStackRequest, runtime);
       logger.debug(`getStack ===> ${JSON.stringify(resp.body)}`);
@@ -165,6 +168,7 @@ export class Ros {
   }
 
   protected async waitStackChangeFinished(endMessage: string, stackId?: string) {
+    const logger = GLogger.getLogger();
     const sId = stackId || (await this.getStackId());
     while (true) {
       let r = await this.listStackEvents();
@@ -223,6 +227,7 @@ export class Ros {
   }
 
   protected async createStack(): Promise<string> {
+    const logger = GLogger.getLogger();
     let parameters: $ROS20190910.CreateStackRequestParameters[] = [];
     for (const key in this.getParameters()) {
       // logger.debug(`parameters ==> ${ key }: ${ this.getParameters()[key] }`);
@@ -259,7 +264,8 @@ export class Ros {
     }
     let runtime = new $Util.RuntimeOptions({});
     try {
-      let resp = await this.getRosClient().createStackWithOptions(createStackRequest, runtime);
+      const client = await this.getRosClient();
+      let resp = await client.createStackWithOptions(createStackRequest, runtime);
       logger.debug(`createStack ===> ${JSON.stringify(resp.body)} `);
       const stackId = resp.body.stackId as string;
       await this.waitStackChangeFinished(
@@ -274,6 +280,7 @@ export class Ros {
   }
 
   protected async updateStack(stackId?: string, dryRun?: boolean) {
+    const logger = GLogger.getLogger();
     let parameters: $ROS20190910.UpdateStackRequestParameters[] = [];
     for (const key in this.getParameters()) {
       // logger.debug(`parameters ==> ${ key }: ${ this.getParameters()[key] } `);
@@ -311,7 +318,8 @@ export class Ros {
     }
     let runtime = new $Util.RuntimeOptions({});
     try {
-      await this.getRosClient().updateStackWithOptions(updateStackRequest, runtime);
+      const client = await this.getRosClient();
+      await client.updateStackWithOptions(updateStackRequest, runtime);
 
       if (!dryRun) {
         await this.waitStackChangeFinished(
@@ -334,13 +342,14 @@ export class Ros {
   }
 
   public async deploy(): Promise<object> {
+    const logger = GLogger.getLogger();
     let stackId = await this.getStackId();
     if (stackId == '') {
       // create
       logger.info(`create stack stackName = ${this.getStackName()}...`);
       stackId = await this.createStack();
     } else {
-      // udpate
+      // update
       logger.info(`update stack ${stackId} ${this.getStackName()} precheck ...`);
       await this.updateStack(stackId, true);
       logger.info(`update stack ${stackId} ${this.getStackName()} ...`);
@@ -351,7 +360,12 @@ export class Ros {
     if (ret == null) {
       throw new Error('get stack outputs fail');
     }
-    const outputs = ret.body.outputs;
+
+    logger.info(
+      `stack detail ==> \nhttps://ros.console.aliyun.com/${this.getRegion()}/stacks/${stackId}?resourceGroupId=`,
+    );
+
+    const outputs = ret.body.outputs || [];
     logger.debug(`outputs ===> ${outputs} `);
     let exportOutputs = { stackId: stackId };
     if (!_.isEmpty(outputs)) {
@@ -363,6 +377,7 @@ export class Ros {
   }
 
   public async remove() {
+    const logger = GLogger.getLogger();
     const stackId = await this.getStackId();
     if (stackId === '') {
       logger.info(`stack is not exist, id = ${stackId}, name = ${this.getStackName()} `);
@@ -374,12 +389,13 @@ export class Ros {
     });
     let runtime = new $Util.RuntimeOptions({});
     try {
-      let resp = await this.getRosClient().deleteStackWithOptions(deleteStackRequest, runtime);
+      const client = await this.getRosClient();
+      let resp = await client.deleteStackWithOptions(deleteStackRequest, runtime);
       logger.debug(`deleteStack ===> ${JSON.stringify(resp.body)} `);
       logger.info(`delete Stack ${stackId} takes a long time, please be patient and wait...`);
       while (true) {
         const ret = (await this.getStack(stackId)) as $ROS20190910.GetStackResponse;
-        if (ret.statusCode === 404 || ret.body.status === 'DELETE_COMPLETE') {
+        if (ret.body.status === 'DELETE_COMPLETE' || ret.statusCode === 404) {
           // StackNotFound
           logger.info(`stack delete finished!`);
           break;

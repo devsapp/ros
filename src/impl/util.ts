@@ -1,4 +1,4 @@
-import logger from '../common/logger';
+import Logger from '../common/logger';
 import * as fs from 'fs';
 
 type RetryFunction<T> = (...args: any[]) => Promise<T>;
@@ -18,14 +18,14 @@ export async function retry<T>(
       if (shouldStop(result)) {
         return result;
       }
-      logger.info(`Retrying in ${interval} ms...`);
+      Logger.getLogger().info(`Retrying in ${interval} ms...`);
       await new Promise((resolve) => setTimeout(resolve, interval));
     } catch (err) {
-      logger.error(err.message);
+      Logger.getLogger().error(err.message);
       if (++retries > maxRetries) {
         throw new Error(`Failed after ${retries} retries: ${err.message}`);
       }
-      logger.info(`Retrying in ${interval} ms...`);
+      Logger.getLogger().info(`Retrying in ${interval} ms...`);
       await new Promise((resolve) => setTimeout(resolve, interval));
     }
   }
