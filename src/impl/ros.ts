@@ -27,7 +27,7 @@ export class Ros {
     return this.getProps().region;
   }
 
-  protected getCredentials(): Promise<any> {
+  protected getCredential(): Promise<any> {
     return this.input.getCredential();
   }
 
@@ -98,8 +98,8 @@ export class Ros {
     if (this.rosClient !== null) {
       return this.rosClient;
     }
-    const credential = await this.getCredentials();
-    GLogger.getLogger().debug(`getCredentials ==> ${JSON.stringify(credential)}`);
+    const credential = await this.getCredential();
+    GLogger.getLogger().debug(`getCredential ==> ${JSON.stringify(credential)}`);
     let config = new $OpenApi.Config({
       accessKeyId: credential.AccessKeyID,
       accessKeySecret: credential.AccessKeySecret,
@@ -380,9 +380,10 @@ export class Ros {
     const logger = GLogger.getLogger();
     const stackId = await this.getStackId();
     if (stackId === '') {
-      logger.info(`stack is not exist, id = ${stackId}, name = ${this.getStackName()} `);
+      logger.error(`stack is not exist, id = ${stackId}, name = ${this.getStackName()} `);
       return;
     }
+    logger.debug(`remove stackId =${stackId}`);
     let deleteStackRequest = new $ROS20190910.DeleteStackRequest({
       stackId: stackId,
       regionId: this.getRegion(),

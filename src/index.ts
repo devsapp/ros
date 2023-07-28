@@ -40,9 +40,9 @@ export default class ComponentRos {
     return rosObj.deploy();
   }
 
-  public async remove(inputs: IInputs) {
+  public async remove(inputs: IInputs): Promise<void> {
     GLogger.getLogger().debug(`remove ==> input: ${JSON.stringify(inputs.props)}`);
     const rosObj = new Ros(inputs);
-    rosObj.remove();
+    return rosObj.remove();
   }
 }
