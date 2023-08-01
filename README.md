@@ -14,11 +14,11 @@
 1. 在本地创建`s.yaml`
 
 ```yaml
-edition: 1.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
+edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
 name: rosApp #  项目名称
 access: default #  秘钥别名
 
-services:
+resources:
   ros: #  服务名称
     component: ros
     props:
@@ -50,11 +50,11 @@ ros-test:
 ## 完整配置
 
 ```
-edition: 1.0.0          #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
+edition: 3.0.0          #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
 name: rosApp            #  项目名称
 access: aliyun-release  #  秘钥别名
 
-services:
+resources:
   ros: #  服务名称
     component:  ros
     props:
