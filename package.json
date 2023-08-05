@@ -30,6 +30,8 @@
     "@alicloud/openapi-client": "^0.4.6",
     "@alicloud/ros20190910": "^3.2.26",
     "@serverless-devs/component-interface": "^0.0.2",
+    "@serverless-devs/utils": "^0.0.8-beta.6",
+    "inquirer": "^8.2.6",
     "lodash": "^4.17.21",
     "string-random": "0.1.3",
     "uuid": "^9.0.0"

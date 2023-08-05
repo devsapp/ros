@@ -39,7 +39,7 @@ export class Ros {
     return this.getProps().parameters || {};
   }
 
-  protected getStackName(): string {
+  public getStackName(): string {
     return this.getProps().name as string;
   }
 
@@ -47,7 +47,7 @@ export class Ros {
     return this.getProps().policy || {};
   }
 
-  protected async getStackId(): Promise<string> {
+  public async getStackId(): Promise<string> {
     const logger = GLogger.getLogger();
     if (this._stackId != '') {
       return this._stackId;
@@ -182,8 +182,7 @@ export class Ros {
       } else {
         for (const e of filterEvents) {
           logger.info(
-            `${e.resourceType}  ${e.logicalResourceId}   ${e.status}  ${
-              e.statusReason
+            `${e.resourceType}  ${e.logicalResourceId}   ${e.status}  ${e.statusReason
             }   ${utcTimeStr2LocalStr(e.createTime as string)} `,
           );
         }
@@ -197,8 +196,7 @@ export class Ros {
       );
       for (const e of filterEvents) {
         logger.info(
-          `${e.resourceType}  ${e.logicalResourceId}   ${e.status}  ${
-            e.statusReason
+          `${e.resourceType}  ${e.logicalResourceId}   ${e.status}  ${e.statusReason
           }   ${utcTimeStr2LocalStr(e.createTime as string)} `,
         );
       }
