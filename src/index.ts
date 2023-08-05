@@ -45,10 +45,9 @@ export default class ComponentRos {
   public async remove(inputs: IInputs): Promise<void> {
     GLogger.getLogger().debug(`remove ==> input: ${JSON.stringify(inputs)}`);
 
-
     //GLogger.getLogger().debug(`remove ==> assumeYes: ${JSON.stringify(inputs.args)}`);
     const command = parseArgv(inputs.args);
-    console.log(command.y)
+    //console.log(command.y);
     const rosObj = new Ros(inputs);
     if (command.y) {
       return rosObj.remove();

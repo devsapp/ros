@@ -391,7 +391,7 @@ export class Ros {
       const client = await this.getRosClient();
       let resp = await client.deleteStackWithOptions(deleteStackRequest, runtime);
       logger.debug(`deleteStack ===> ${JSON.stringify(resp.body)} `);
-      logger.info(`delete Stack ${stackId} takes a long time, please be patient and wait...`);
+      logger.info(`delete Stack: id=${stackId} name=${this.getStackName()} takes a long time, please be patient and wait...`);
       while (true) {
         const ret = (await this.getStack(stackId)) as $ROS20190910.GetStackResponse;
         if (ret.body.status === 'DELETE_COMPLETE' || ret.statusCode === 404) {

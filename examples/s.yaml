@@ -16,9 +16,9 @@ resources:
       template: ./ros_template.yaml
       parameters:
         BucketName: bucket-app-v3-1
-        InstanceName: inst-app-v3-1
-        RoleName: role-app-v3-1
-        PolicyName: policy-app-v3-1
+        # InstanceName: inst-app-v3-1
+        # RoleName: role-app-v3-1
+        # PolicyName: policy-app-v3-1
         # BucketName: bucket-${vars.stack-name}
         # InstanceName: inst-${vars.stack-name}
         # RoleName: role-${vars.stack-name}
