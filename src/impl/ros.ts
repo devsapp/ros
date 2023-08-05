@@ -106,6 +106,7 @@ export class Ros {
       securityToken: credential.SecurityToken,
     });
     config.endpoint = endpoint || this.getRosEndpoint();
+    config.readTimeout = 30000;
     this.rosClient = new ROS20190910(config);
     return this.rosClient;
   }
@@ -354,6 +355,17 @@ export class Ros {
       await this.updateStack(stackId, true);
       logger.info(`update stack ${stackId} ${this.getStackName()} ...`);
       await this.updateStack(stackId, false);
+
+      const ret = await this.getStack(stackId);
+      if (ret != null) {
+        if (!ret.body.status.endsWith('_COMPLETE')) {
+          logger.info(`stack status = ${ret.status}, retry waitStackChangeFinished ...`);
+          await this.waitStackChangeFinished(
+            `stack ${this.getStackName()} update finished! stackId = ${stackId} `,
+            stackId,
+          );
+        }
+      }
     }
 
     const ret = await this.getStack(stackId);
