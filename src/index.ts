@@ -39,7 +39,7 @@ export default class ComponentRos {
   public async deploy(inputs: IInputs): Promise<object> {
     GLogger.getLogger().debug(`deploy ==> input: ${JSON.stringify(inputs)}`);
     const rosObj = new Ros(inputs);
-    return rosObj.deploy();
+    return await rosObj.deploy();
   }
 
   public async remove(inputs: IInputs): Promise<void> {
@@ -50,13 +50,13 @@ export default class ComponentRos {
     //console.log(command.y);
     const rosObj = new Ros(inputs);
     if (command.y) {
-      return rosObj.remove();
+      return await rosObj.remove();
     }
     const stackId = await rosObj.getStackId();
     const stackName = await rosObj.getStackName();
     const meg = `Do you want to delete ros stack: ${stackName}  ${stackId}`;
     if (await this.promptForConfirmOrDetails(meg)) {
-      return rosObj.remove();
+      return await rosObj.remove();
     }
   }
 
