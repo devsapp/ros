@@ -46,7 +46,11 @@ export default class ComponentRos {
     GLogger.getLogger().debug(`remove ==> input: ${JSON.stringify(inputs)}`);
 
     //GLogger.getLogger().debug(`remove ==> assumeYes: ${JSON.stringify(inputs.args)}`);
-    const command = parseArgv(inputs.args);
+    const command = parseArgv(inputs.args, {
+      alias: { help: 'h', 'assume-yes': 'y' },
+      boolean: ['help', 'y'],
+      string: [],
+    });
     //console.log(command.y);
     const rosObj = new Ros(inputs);
     if (command.y) {
