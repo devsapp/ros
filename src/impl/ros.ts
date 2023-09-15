@@ -106,7 +106,8 @@ export class Ros {
       securityToken: credential.SecurityToken,
     });
     config.endpoint = endpoint || this.getRosEndpoint();
-    config.readTimeout = 30000;
+    // config.connectTimeout=5000;
+    // config.readTimeout=10000;
     this.rosClient = new ROS20190910(config);
     return this.rosClient;
   }

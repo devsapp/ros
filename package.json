@@ -24,7 +24,8 @@
     "format": "prettier --write src/",
     "prebuild": "rimraf dist && npm run format &&  rimraf node_modules && npm i",
     "build": "esbuild src/index.ts --bundle --log-level=error --minify --platform=node --format=cjs --target=node10.4  --outfile=dist/index.js",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "postinstall": "./fix-sdk.sh"
   },
   "dependencies": {
     "@alicloud/openapi-client": "^0.4.6",
