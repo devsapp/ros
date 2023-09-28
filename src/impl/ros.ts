@@ -5,6 +5,7 @@ import { readFileAsString, utcTimeStr2LocalStr } from './util';
 import * as $Util from '@alicloud/tea-util';
 import * as _ from 'lodash';
 import GLogger from '../common/logger';
+import { FC_CLIENT_CONNECT_TIMEOUT, FC_CLIENT_READ_TIMEOUT } from './const';
 export class Ros {
   input: IInputs;
   rosClient: ROS20190910 | null;
@@ -19,12 +20,8 @@ export class Ros {
     this._eventSet = new Set<string>();
   }
 
-  protected getProps(): any {
-    return this.input.props;
-  }
-
   protected getRegion(): string {
-    return this.getProps().region;
+    return this.input.props.region;
   }
 
   protected getCredential(): Promise<any> {
@@ -32,19 +29,19 @@ export class Ros {
   }
 
   protected getRosEndpoint(): string {
-    return this.getProps().endpoint || 'ros.aliyuncs.com';
+    return this.input.props.endpoint || 'ros.aliyuncs.com';
   }
 
   protected getParameters(): object {
-    return this.getProps().parameters || {};
+    return this.input.props.parameters || {};
   }
 
   public getStackName(): string {
-    return this.getProps().name as string;
+    return this.input.props.name as string;
   }
 
   protected getStackPolicy(): object {
-    return this.getProps().policy || {};
+    return this.input.props.policy || {};
   }
 
   public async getStackId(): Promise<string> {
@@ -76,7 +73,7 @@ export class Ros {
   }
 
   protected getTemplate(): string {
-    const template = this.getProps().template;
+    const template = this.input.props.template;
     if (typeof template === 'object') {
       return JSON.stringify(template);
     } else {
@@ -106,8 +103,8 @@ export class Ros {
       securityToken: credential.SecurityToken,
     });
     config.endpoint = endpoint || this.getRosEndpoint();
-    // config.connectTimeout=5000;
-    // config.readTimeout=10000;
+    config.connectTimeout = FC_CLIENT_CONNECT_TIMEOUT;
+    config.readTimeout = FC_CLIENT_READ_TIMEOUT;
     this.rosClient = new ROS20190910(config);
     return this.rosClient;
   }
@@ -330,6 +327,10 @@ export class Ros {
         );
       }
     } catch (error) {
+      logger.debug(JSON.stringify(error));
+      logger.info(
+        `you can login https://ros.console.aliyun.com/${this.getRegion()}/stacks?resourceGroupId= to check stack`,
+      );
       if (error.message.includes('NotSupported: code: 400, Update the completely same stack')) {
         logger.info('Update the completely same stack is not supported');
         return;
@@ -338,7 +339,7 @@ export class Ros {
         logger.info('Update Stack Action is already in progress, please wait for a moment ...');
         return;
       }
-      logger.error(error.message);
+      logger.error(JSON.stringify(error));
       throw error;
     }
   }
@@ -379,7 +380,7 @@ export class Ros {
     );
 
     const outputs = ret.body.outputs || [];
-    logger.debug(`outputs ===> ${outputs} `);
+    logger.debug(`deploy outputs ===> ${JSON.stringify(outputs)} `);
     let exportOutputs = { stackId: stackId };
     if (!_.isEmpty(outputs)) {
       for (const o of outputs) {
