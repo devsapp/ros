@@ -1,6 +1,6 @@
 {
   "name": "RosComponent",
-  "version": "0.0.1",
+  "version": "dev.0.2",
   "description": "This is ros component for Serverless Devs Tool ",
   "autoInstall": false,
   "homepage": "https://www.serverless-devs.com",

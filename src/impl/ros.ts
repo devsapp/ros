@@ -369,7 +369,16 @@ export class Ros {
         }
       }
     }
+    return await this.info(stackId);
+  }
 
+  public async info(stackId?: string) {
+    const logger = GLogger.getLogger();
+    stackId = stackId || (await this.getStackId());
+    if (stackId === '') {
+      logger.error(`stack is not exist, id = ${stackId}, name = ${this.getStackName()} `);
+      return;
+    }
     const ret = await this.getStack(stackId);
     if (ret == null) {
       throw new Error('get stack outputs fail');
@@ -398,6 +407,7 @@ export class Ros {
       return;
     }
     logger.debug(`remove stackId =${stackId}`);
+    const output = await this.info(stackId);
     let deleteStackRequest = new $ROS20190910.DeleteStackRequest({
       stackId: stackId,
       regionId: this.getRegion(),
@@ -422,6 +432,7 @@ export class Ros {
         logger.debug(`getStack retrying in ${interval} ms...`);
         await new Promise((resolve) => setTimeout(resolve, interval));
       }
+      return output;
     } catch (error) {
       logger.error(error.message);
       if (error.message.includes('ActionInProgress: code: 409')) {

@@ -21,6 +21,12 @@ export default class ComponentRos {
           ],
         },
       },
+      info: {
+        help: {
+          description: 'show ros stack output information',
+          summary: 'show ros stack output information',
+        },
+      },
       remove: {
         help: {
           description: 'remove ros stack',
@@ -42,7 +48,13 @@ export default class ComponentRos {
     return await rosObj.deploy();
   }
 
-  public async remove(inputs: IInputs): Promise<void> {
+  public async info(inputs: IInputs): Promise<object> {
+    GLogger.getLogger().debug(`deploy ==> input: ${JSON.stringify(inputs)}`);
+    const rosObj = new Ros(inputs);
+    return await rosObj.info();
+  }
+
+  public async remove(inputs: IInputs): Promise<any> {
     GLogger.getLogger().debug(`remove ==> input: ${JSON.stringify(inputs)}`);
 
     //GLogger.getLogger().debug(`remove ==> assumeYes: ${JSON.stringify(inputs.args)}`);
