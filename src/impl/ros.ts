@@ -329,7 +329,7 @@ export class Ros {
     } catch (error) {
       logger.debug(JSON.stringify(error));
       logger.info(
-        `you can login https://ros.console.aliyun.com/${this.getRegion()}/stacks?resourceGroupId= to check stack`,
+        `you can login console to check stack, stack addr: https://ros.console.aliyun.com/${this.getRegion()}/stacks/${stackId}`,
       );
       if (error.message.includes('NotSupported: code: 400, Update the completely same stack')) {
         logger.info('Update the completely same stack is not supported');
@@ -340,6 +340,9 @@ export class Ros {
         return;
       }
       logger.error(JSON.stringify(error));
+      logger.warn(
+        `You can remove the stack ${stackId} and retry deploy once; stack addr: https://ros.console.aliyun.com/${this.getRegion()}/stacks/${stackId}`,
+      );
       throw error;
     }
   }
@@ -376,8 +379,13 @@ export class Ros {
     const logger = GLogger.getLogger();
     stackId = stackId || (await this.getStackId());
     if (stackId === '') {
-      logger.error(`stack is not exist, id = ${stackId}, name = ${this.getStackName()} `);
-      return;
+      logger.error(`stack is not exist, id = ${stackId}, name = ${this.getStackName()}`);
+      return {
+        error: {
+          code: 'StackNotFound',
+          message: `StackNotFound: code: 404, stack is not exist, id = ${stackId}, name = ${this.getStackName()}`,
+        },
+      };
     }
     const ret = await this.getStack(stackId);
     if (ret == null) {
