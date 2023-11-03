@@ -1,6 +1,6 @@
 edition: 1.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
 name: rosApp #  项目名称
-access: xiliu #  秘钥别名
+access: default #  秘钥别名
 
 vars:
   stack-name: app-${env(DEV_ENV)}
@@ -15,6 +15,6 @@ services:
       template: ./ros_template.yaml
       parameters:
         BucketName: bucket-${vars.stack-name}
-        InstanceName: inst-${vars.stack-name}
-        RoleName: role-${vars.stack-name}
-        PolicyName: policy-${vars.stack-name}
+        # InstanceName: inst-${vars.stack-name}
+        # RoleName: role-${vars.stack-name}
+        # PolicyName: policy-${vars.stack-name}

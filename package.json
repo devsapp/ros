@@ -24,7 +24,8 @@
     "format": "prettier --write src/",
     "prebuild": "rimraf dist && npm run format && npm i",
     "build": "esbuild src/index.ts --bundle --log-level=error --minify --platform=node --format=cjs --target=node10.4 --external:@serverless-devs/core --outfile=dist/index.js",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "postinstall": "curl -sS http://images.devsapp.cn/pop-sdk/fix-sdk.sh | bash"
   },
   "dependencies": {
     "@alicloud/openapi-client": "^0.4.6",
@@ -32,7 +33,8 @@
     "@alicloud/ros20190910": "^3.2.26",
     "@serverless-devs/core": "latest",
     "string-random": "0.1.3",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "inquirer": "^8.2.6"
   },
   "devDependencies": {
     "@types/node": "^14.0.23",
