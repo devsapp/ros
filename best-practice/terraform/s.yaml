@@ -1,0 +1,48 @@
+edition: 3.0.0
+name: hello-world-app
+access: xiliu
+vars:
+  region: cn-hangzhou
+  stack-name: xl-tf-${env('DEV_ENV')}
+resources:
+  func1:
+    component: fc3
+    props:
+      region: ${vars.region}
+      description: hello world by serverless devs
+      runtime: python3.9
+      handler: index.handler
+      memorySize: 256
+      timeout: 60
+      environmentVariables:
+        OTS_INSTANCE: ${resources.env-res.output.InstanceName}
+        #OTS_TABLE: ${resources.env-res.output.TableName}
+      functionName: ${vars.stack-name}-func1
+      code: ./code
+      triggers:
+        - qualifier: LATEST
+          triggerName: ossTrigger
+          triggerType: oss
+          triggerConfig:
+            events:
+              - oss:ObjectCreated:PutObject
+              - oss:ObjectCreated:PostObject
+              - oss:ObjectCreated:CompleteMultipartUpload
+            filter:
+              key:
+                prefix: src/
+                suffix: .png
+          invocationRole: acs:ram::${config('AccountID')}:role/aliyunosseventnotificationrole
+          sourceArn: >-
+            acs:oss:${this.props.region}:${config("AccountID")}:${resources.env-res.output.BucketName}
+  env-res:
+    component: /Users/songluo/work/code-inc/ros
+    props:
+      region: ${vars.region}
+      name: ${vars.stack-name}
+      endpoint: ros.aliyuncs.com
+      terraform: ./infra
+      parameters:
+        BucketName: ${vars.stack-name}
+        InstanceName: ${vars.stack-name}
+        #TableName: xl_app

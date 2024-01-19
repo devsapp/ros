@@ -1,0 +1,77 @@
+edition: 3.0.0
+name: hello-world-app
+access: xiliu
+vars:
+  region: cn-hangzhou
+  stack-name: xl-trans-${env('DEV_ENV')}
+resources:
+  func1:
+    component: fc3
+    props:
+      region: ${vars.region}
+      description: hello world by serverless devs
+      runtime: python3.9
+      handler: index.handler
+      memorySize: 128
+      timeout: 60
+      #role: ${resources.env-res.output.RoleArn}
+      environmentVariables:
+        OTS_INSTANCE: ${resources.env-res.output.xl_test_instance_001}
+        OTS_TABLE: ${resources.env-res.output.xl_test_table_001}
+      functionName: ${vars.stack-name}-func1
+      code: ./code
+      triggers:
+        - qualifier: LATEST
+          triggerName: ossTrigger
+          triggerType: oss
+          triggerConfig:
+            events:
+              - oss:ObjectCreated:PutObject
+              - oss:ObjectCreated:PostObject
+              - oss:ObjectCreated:CompleteMultipartUpload
+            filter:
+              key:
+                prefix: src/
+                suffix: .png
+          invocationRole: acs:ram::${config('AccountID')}:role/aliyunosseventnotificationrole
+          sourceArn: >-
+            acs:oss:${this.props.region}:${config("AccountID")}:${resources.env-res.output.xl_test_bucket_001}
+
+  xl_test_bucket_001:
+    component: aliyun_oss_bucket
+    props:
+      bucket: ${vars.stack-name}
+      acl: private
+
+  xl_test_instance_001:
+    component: aliyun_ots_instance
+    props:
+      name: ${vars.stack-name}
+      accessed_by: Any
+      description: "xiliu test instance"
+      instance_type: Capacity
+
+  xl_test_table_001:
+    component: aliyun_ots_table
+    props:
+      depends_on: 
+        - xl_test_instance_001
+      instance_name: ${resources.xl_test_instance_001.props.name}
+      table_name: xl_app
+      primary_key:
+        - type: String
+          name: id
+      time_to_live: -1
+      max_version: 1
+      deviation_cell_version_in_sec: 86400
+  
+  env-res:
+    component: ros_transformer
+    props:
+      region: ${vars.region}
+      name: ${vars.stack-name}
+      endpoint: ros.aliyuncs.com # 海外是 ros-intl.aliyuncs.com， 默认是国内
+      refs:
+        - ${resources.xl_test_bucket_001.output}
+        - ${resources.xl_test_instance_001.output}
+        - ${resources.xl_test_table_001.output}

@@ -1,0 +1,57 @@
+ROSTemplateFormatVersion: "2015-09-01"
+Parameters:
+  BucketName:
+    Type: String
+    Description: bucket name.
+  InstanceName:
+    Type: String
+    Description: ots instance name.
+  TableName:
+    Type: String
+    Description: ots table name.
+Resources:
+  Bucket-001:
+    Type: "ALIYUN::OSS::Bucket"
+    Properties:
+      AccessControl: private
+      BucketName:
+        Ref: BucketName
+  Instance-001:
+    Type: "ALIYUN::OTS::Instance"
+    Properties:
+      Network: NORMAL
+      InstanceName:
+        Ref: InstanceName
+      ClusterType: SSD
+      Description: test ots instance
+  Table-001:
+    Type: "ALIYUN::OTS::Table"
+    Properties:
+      TableName:
+        Ref: TableName
+      InstanceName:
+        "Fn::GetAtt":
+          - Instance-001
+          - InstanceName
+      PrimaryKey:
+        - Type: STRING
+          Name: id
+    DependsOn:
+      - Instance-001
+
+Outputs:
+  BucketName:
+    Value:
+      "Fn::GetAtt":
+        - Bucket-001
+        - Name
+  InstanceName:
+    Value:
+      "Fn::GetAtt":
+        - Instance-001
+        - InstanceName
+  TableName:
+    Value:
+      "Fn::GetAtt":
+        - Table-001
+        - TableName

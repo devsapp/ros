@@ -1,6 +1,8 @@
 ![图片alt](https://serverless-article-picture.oss-cn-hangzhou.aliyuncs.com/1640848491604_20211230071454223687.png)
 
-通过该组件，快速通过 ROS 部署项目
+通过该组件，快速通过 ROS 部署云资源
+
+> 和函数计算结合的组合最佳实践请参考[最佳实践](./best-practice), 可以借力 IaC 平台服务实现其他云资源的部署，拓展 Serverless 应用资源的边界，也是 Serverless 应用一个很好的多环境实践。
 
 - [测试](#测试)
 - [完整配置](#完整配置)
@@ -9,36 +11,11 @@
   - [Deploy 命令](#Deploy命令)
   - [Remove 命令](#Remove命令)
 
-## 测试
+## 快速测试
 
-1. 在本地创建`s.yaml`
+1. 进入 examples 目录, 查看 `s.yaml` 示例
 
-```yaml
-edition: 3.0.0 #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
-name: rosApp #  项目名称
-access: default #  秘钥别名
-
-resources:
-  ros: #  服务名称
-    component: ros
-    props:
-      region: cn-hangzhou
-      name: test
-      template: ./template.json
-      parameters:
-        test: 1
-        demo: 2
-```
-
-2. 创建一个符合 ROS 规范的 json 文件`template.json` 或者 yaml 文件 `template.yaml`
-
-```json
-{
-  "ROSTemplateFormatVersion": "2015-09-01"
-}
-```
-
-3. 可以通过`s deploy`快速进行部署：
+2. 可以通过`s deploy` 完成资源的 IaC 部署
 
 ```shell script
 ros-test:
@@ -72,9 +49,12 @@ resources:
 | ---------- | ----- | ------ | -------------------------------------------------------------------------------------------------------------------- |
 | region     | True  | Enum   | 地域                                                                                                                 |
 | name       | True  | String | Stack 名字                                                                                                           |
-| template   | True  | String | Template 本地路径、线上地址或者原始的 Ros template，例如 http/https 协议的地址，或 oss 地址等，默认是`template.json` |
-| policy     | False | Struct | Policy 配置                                                                                                          |
+| template   | False  | String | 和 terraform 参数 2 选 1, template 本地路径、线上地址或者原始的 ROS template，例如 http/https 协议的地址，或 oss 地址等，默认是`template.json`; 不传参数， 则表示线上存在这个 stack 则直接使用这个 stack 的 output，无需更新 stack |
+| terraform   | False  | String | 和 template 参数 2 选 1, terraform 脚本本地所在的目录、 不传参数， 则表示线上存在这个 stack 则直接使用这个 stack 的 output，无需更新 stack |
+| policy     | False | Struct | Policy 配置, 详情见 [CreateStack](https://help.aliyun.com/zh/ros/developer-reference/api-ros-2019-09-10-createstack) 中 StackPolicyBody 和  StackPolicyURL                                                                                                  |
 | parameters | False | Struct | 模板中已定义的参数的名称和取值                                                                                       |
+
+> 注: template 和 terraform 参数 2 选 1, 如果同时不传这个两个参数， 表示直接跟据 name 使用存量的 stack
 
 #### Policy
 

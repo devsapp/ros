@@ -3,7 +3,7 @@ Type: Component
 Name: ros
 Provider:
   - 阿里云 # 取值内容参考：https://api.devsapp.cn/v3/common/args.html
-Version: 0.0.3
+Version: dev
 Description: 通过阿里云 ROS 部署阿里云资源
 HomePage: https://github.com/devsapp/ros
 Tags:
@@ -59,7 +59,16 @@ Properties:
   template:
     type: object
     required: true
-    description: ros template 语法， yaml 格式,  和 templateUri 参数必须2选1
+    description: iac template 语法
+  
+  templateType:
+    type: string
+    required: false
+    description: template 的类型, ros 或者 terraform, 默认为 ros
+    default: ros
+    enum:
+      - ros
+      - terraform
 
   policy:
     type: object

@@ -5,6 +5,10 @@ import { readFileAsString, utcTimeStr2LocalStr } from './util';
 import * as $Util from '@alicloud/tea-util';
 import * as _ from 'lodash';
 import GLogger from '../common/logger';
+import chalk from 'chalk';
+import path from 'path';
+import fs from 'fs';
+import * as yaml from 'js-yaml';
 import { FC_CLIENT_CONNECT_TIMEOUT, FC_CLIENT_READ_TIMEOUT } from './const';
 export class Ros {
   input: IInputs;
@@ -12,12 +16,18 @@ export class Ros {
   private _stackId: string;
   _startTimeStamp: number;
   _eventSet: Set<string>;
+  baseDir: string;
   constructor(input: IInputs) {
     this.input = input;
     this.rosClient = null;
     this._stackId = '';
     this._startTimeStamp = new Date().getTime() + new Date().getTimezoneOffset() * 60 * 1000;
     this._eventSet = new Set<string>();
+    if (input.yaml?.path) {
+      this.baseDir = path.dirname(input.yaml?.path);
+    } else {
+      this.baseDir = process.cwd();
+    }
   }
 
   protected getRegion(): string {
@@ -74,6 +84,47 @@ export class Ros {
 
   protected getTemplate(): string {
     const template = this.input.props.template;
+    const terraform = this.input.props.terraform;
+    if (_.isEmpty(template) && _.isEmpty(terraform)) {
+      return undefined;
+    }
+    if (!_.isEmpty(template) && !_.isEmpty(terraform)) {
+      throw new Error(`You can only have one of the parameters 'template' and 'terraform'`);
+    }
+    // 处理 terraform 模版
+    if (!_.isEmpty(terraform)) {
+      const directoryPath = path.isAbsolute(terraform)
+        ? terraform
+        : path.join(this.baseDir, terraform);
+
+      const files = {};
+      const traverseDirectory = (directory: string) => {
+        fs.readdirSync(directory).forEach((file) => {
+          const filePath = path.join(directory, file);
+          const stat = fs.statSync(filePath);
+
+          if (stat.isFile()) {
+            const fileContent = fs.readFileSync(filePath, 'utf8');
+            files[file] = fileContent;
+          } else if (stat.isDirectory()) {
+            traverseDirectory(filePath);
+          }
+        });
+      };
+
+      traverseDirectory(directoryPath);
+
+      const yamlData = {
+        ROSTemplateFormatVersion: '2015-09-01',
+        Transform: 'Aliyun::Terraform-v1.2',
+        Workspace: files,
+      };
+
+      const yamlString = yaml.dump(yamlData);
+      console.log(yamlString);
+      return yamlString;
+    }
+    // 处理 ROS 模版
     if (typeof template === 'object') {
       return JSON.stringify(template);
     } else {
@@ -332,16 +383,20 @@ export class Ros {
         `you can login console to check stack, stack addr: https://ros.console.aliyun.com/${this.getRegion()}/stacks/${stackId}`,
       );
       if (error.message.includes('NotSupported: code: 400, Update the completely same stack')) {
-        logger.info('Update the completely same stack is not supported');
+        logger.info(chalk.yellow('Update the completely same stack is not supported'));
         return;
       }
       if (error.message.includes('ActionInProgress: code: 409')) {
-        logger.info('Update Stack Action is already in progress, please wait for a moment ...');
+        logger.info(
+          chalk.yellow('Update Stack Action is already in progress, please wait for a moment ...'),
+        );
         return;
       }
       logger.error(JSON.stringify(error));
       logger.warn(
-        `You can remove the stack ${stackId} and retry deploy once; stack addr: https://ros.console.aliyun.com/${this.getRegion()}/stacks/${stackId}`,
+        chalk.yellow(
+          `You can remove the stack ${stackId} and retry deploy once; stack addr: https://ros.console.aliyun.com/${this.getRegion()}/stacks/${stackId}`,
+        ),
       );
       throw error;
     }
@@ -350,6 +405,19 @@ export class Ros {
   public async deploy(): Promise<object> {
     const logger = GLogger.getLogger();
     let stackId = await this.getStackId();
+    if (_.isEmpty(this.getTemplate())) {
+      if (stackId == '') {
+        throw new Error(
+          `The stack ${this.getStackName()}  does not exist as you did not provide the 'template' parameter.`,
+        );
+      }
+      logger.info(
+        chalk.green(
+          `You did not provide the 'template' parameter. Using the existing stack ${this.getStackName()} in region ${this.getRegion()}`,
+        ),
+      );
+      return await this.info(stackId);
+    }
     if (stackId == '') {
       // create
       logger.info(`create stack stackName = ${this.getStackName()}...`);
