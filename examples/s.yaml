@@ -11,11 +11,11 @@ resources:
     props:
       region: cn-beijing
       #name: app-${vars.stack-name}
-      name: app-v3-1
+      name: app-v3-2
       endpoint: ros.aliyuncs.com # 海外是 ros-intl.aliyuncs.com， 默认是国内
       template: ./ros_template.yaml
       parameters:
-        BucketName: bucket-app-v3-1
+        BucketName: bucket-app-v3
         # InstanceName: inst-app-v3-1
         # RoleName: role-app-v3-1
         # PolicyName: policy-app-v3-1

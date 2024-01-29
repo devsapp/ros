@@ -22,3 +22,4 @@ README.md
 ./Makefile
 ./f2elint.config.js
 ./commitlint.config.js
+replace-committers.sh

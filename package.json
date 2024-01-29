@@ -23,12 +23,15 @@
     "watch": "tsc -w",
     "format": "prettier --write src/",
     "prebuild": "rimraf dist && npm run format &&  rimraf node_modules && npm i",
-    "build": "esbuild src/index.ts --bundle --log-level=error --minify --platform=node --format=cjs --target=node10.4  --outfile=dist/index.js",
-    "postinstall": "curl -sS http://images.devsapp.cn/pop-sdk/fix-sdk.sh | bash"
+    "build": "esbuild src/index.ts --bundle --log-level=error --minify --platform=node --format=cjs --target=node10.4  --outfile=dist/index.js"
   },
   "dependencies": {
-    "@alicloud/openapi-client": "^0.4.6",
-    "@alicloud/ros20190910": "^3.2.26",
+    "@alicloud/tea-typescript": "^1.7.1",
+    "@alicloud/ros20190910": "3.3.6",
+    "@alicloud/openapi-client": "^0.4.7",
+    "@alicloud/tea-console": "^1.0.0",
+    "@alicloud/tea-util": "^1.4.7",
+    "@alicloud/tea-xml": "0.0.2",
     "@serverless-devs/component-interface": "^0.0.3-beta.1",
     "@serverless-devs/utils": "^0.0.14",
     "chalk": "^4.1.0",
