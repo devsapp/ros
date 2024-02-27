@@ -1,15 +1,20 @@
 ![图片alt](https://serverless-article-picture.oss-cn-hangzhou.aliyuncs.com/1640848491604_20211230071454223687.png)
 
+
+**注意：** 建议您直接阅读 [ros 组件官方文档](https://manual.serverless-devs.com/user-guide/aliyun/#ros)
+
 通过该组件，快速通过 ROS 部署云资源
 
 > 和函数计算结合的组合最佳实践请参考[最佳实践](./best-practice), 可以借力 IaC 平台服务实现其他云资源的部署，拓展 Serverless 应用资源的边界，也是 Serverless 应用一个很好的多环境实践。
 
-- [测试](#测试)
+- [快速测试](#快速测试)
 - [完整配置](#完整配置)
   - [参数详情](#参数详情)
+    - [Policy](#policy)
 - [命令相关](#命令相关)
-  - [Deploy 命令](#Deploy命令)
-  - [Remove 命令](#Remove命令)
+  - [Deploy 命令](#deploy-命令)
+  - [Remove 命令](#remove-命令)
+  - [Info 命令](#info-命令)
 
 ## 快速测试
 

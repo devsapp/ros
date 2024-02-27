@@ -35,7 +35,7 @@ parameters:
 
 - terraform 语法
 
-- 原生的 s.yaml 语法， 支持的云服务有限, 目前支持的云资源如下: [aliyun-resources](https://code.alibaba-inc.com/serverless-devs/aliyun-resources)
+- 原生的 s.yaml 语法， 支持的云服务有限, 目前支持的云资源如下: [aliyun-resources](https://github.com/devsapp/aliyun-resources)
 
 ## 部署
 
